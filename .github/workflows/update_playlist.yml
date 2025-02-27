@@ -3,27 +3,35 @@ name: Update M3U Playlist
 on:
   push:
     branches:
-      - main
-  schedule:
-    - cron: '0 0 * * *'  # Avtomatik olaraq gündəlik işləmək üçün
+      - main  # Bu workflow yalnız main branch-a push ediləndə işə düşəcək
 
 jobs:
-  update-playlist:
+  update_playlist:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
+    # GitHub Action mühiti hazırlanır
+    - name: Checkout repository
       uses: actions/checkout@v2
 
+    # Python quraşdırılır
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.9'  # Python 3.9 versiyasını istifadə edin
 
+    # Gerekli paketlər quraşdırılır
     - name: Install dependencies
       run: |
-        pip install requests  # Skriptdə istifadə olunan kitabxanaları quraşdırır
+        pip install -r requirements.txt  # Kitabxanalar varsa
+        pip install requests  # `requests` kitabxanasını ayrıca quraşdırırıq
 
+    # Faylları yoxlamaq
+    - name: List files in the repository
+      run: |
+        ls -R  # Bu əmrlə bütün faylların siyahısını görmək mümkündür
+
+    # Python skriptini işə salmaq
     - name: Run update_playlist.py script
       run: |
-        python3 ecanli/update_playlist.py  # Burada düzgün yola diqqət yetirin
+        python ecanli/update_playlist.py  # python3 yerinə python istifadə edirik
