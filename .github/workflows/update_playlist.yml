@@ -32,28 +32,28 @@ jobs:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
         from webdriver_manager.chrome import ChromeDriverManager
+        import time
 
+        # Kanalların linklərini daxil edirik
         channels = [
-            {"name": "Show TV", "url": "https://www.showtv.com.tr/canli-yayin", "slug": "showtv"},
-            {"name": "CNN Türk", "url": "https://www.youtube.com/@cnnturk/live", "slug": "cnnturk"},
-            {"name": "TV8", "url": "https://www.tv8.com.tr/canli-yayin", "slug": "tv8"},
+            {"name": "Xazartv", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=9ctUTj5jLCkNmWD_OxakCg&tms=1740634051", "slug": "xazartv"}
         ]
 
         M3U_FILE = "playlist.m3u"
 
+        # Tokenin yenilənməsi üçün saytı açırıq
         def get_new_m3u8_link(channel_url):
-            # ChromeOptions obyektini yaradın
             options = Options()
             options.add_argument("--headless")  # Başsız modda çalışsın
 
-            # Chrome WebDriver yaradın
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
             driver.get(channel_url)
             
-            # Daha sonra səhifədən m3u8 linkini tapmaq
+            time.sleep(5)
+
             try:
-                m3u8_link = driver.find_element_by_xpath("//a[contains(@href, '.m3u8')]").get_attribute("href")
-                return m3u8_link
+                token_link = driver.current_url
+                return token_link
             except Exception as e:
                 print(f"❌ Xəta: {e} | Kanal: {channel_url}")
                 return None
