@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Avtomatik olaraq gündəlik işləmək üçün
 
 jobs:
   update-playlist:
@@ -22,8 +22,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests
+        pip install requests  # Skriptdə istifadə olunan kitabxanaları quraşdırır
 
-    - name: Get M3U8 links and update playlist
+    - name: Run update_playlist.py script
       run: |
-        python3 ecanli/update_playlist.py
+        python3 ecanli/update_playlist.py  # Burada düzgün yola diqqət yetirin
