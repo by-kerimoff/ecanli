@@ -6,6 +6,7 @@ on:
       - main
   schedule:
     - cron: '0 0 * * *'  # Hər gün 12:00-da yeniləmə (cron vaxtı)
+  workflow_dispatch:  # Manual başlatma üçün əlavə edin
 
 jobs:
   update-playlist:
@@ -30,21 +31,42 @@ jobs:
         import requests
         import re
 
-        # Kanal URL-i və yeni token
-        channel_url = "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=w-2tS11TT7LOKrVVrqjN1A&tms=1740634801"
-        new_token = "w-2tS11TT7LOKrVVrqjN1A"  # Yeni token
+        channels = [
+            {"name": "Show TV", "url": "https://www.showtv.com.tr/canli-yayin", "slug": "showtv"},
+            {"name": "CNN Türk", "url": "https://www.youtube.com/@cnnturk/live", "slug": "cnnturk"},
+            {"name": "TV8", "url": "https://www.tv8.com.tr/canli-yayin", "slug": "tv8"},
+        ]
 
-        # URL-i yeniləyirik
-        new_url = re.sub(r'tkn=[^&]+', f'tkn={new_token}', channel_url)
-
-        # M3U playlist faylına əlavə edirik
         M3U_FILE = "playlist.m3u"
 
-        # M3U faylını yazırıq
+        def get_new_m3u8_link(channel_url):
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+            }
+            response = requests.get(channel_url, headers=headers)
+
+            if response.status_code == 200:
+                match = re.search(r'https://[^"]+\.m3u8\?[^"]+', response.text)
+                if match:
+                    return match.group(0)
+                else:
+                    print(f"❌ Yeni m3u8 link tapılmadı: {channel_url}")
+                    return None
+            else:
+                print(f"❌ Xəta kodu: {response.status_code} | Kanal: {channel_url}")
+                return None
+
         with open(M3U_FILE, "w", encoding="utf-8") as m3u:
             m3u.write("#EXTM3U\n")
-            m3u.write("#EXTINF:-1, Xazartv\n")  # Kanal adı əlavə edilir
-            m3u.write(f"{new_url}\n")  # Yenilənmiş URL
+            
+            for channel in channels:
+                new_m3u8_link = get_new_m3u8_link(channel["url"])
+                
+                if new_m3u8_link:
+                    m3u.write(f"#EXTINF:-1, {channel['name']}\n")
+                    m3u.write(f"{new_m3u8_link}\n")
+                else:
+                    print(f"❌ Kanal linki yenilənmədi: {channel['name']}")
 
         print(f"✅ M3U playlist yeniləndi: {M3U_FILE}")
         EOF
@@ -56,5 +78,3 @@ jobs:
         git add playlist.m3u
         git commit -m "Auto-update M3U playlist"
         git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
