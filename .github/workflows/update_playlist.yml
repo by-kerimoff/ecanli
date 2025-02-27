@@ -22,4 +22,4 @@ jobs:
 
     - name: Run update_playlist.py script
       run: |
-        python ecanli/update_playlist.py  # Faylın doğru yeri burada qeyd olunmalıdır
+        python ecanli/update_playlist.py  # Faylın düzgün yerini qeyd edin
