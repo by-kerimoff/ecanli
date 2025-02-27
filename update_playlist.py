@@ -1,19 +1,18 @@
+import time
 import requests
-import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-import time
 from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-# Kanalların linklərini daxil edirik
+# Kanalların URL-lərini daxil edirik
 channels = [
-    {"name": "Xazartv", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=9ctUTj5jLCkNmWD_OxakCg&tms=1740634051", "slug": "xazartv"}
+    {"name": "Xezer TV", "url": "https://www.ecanlitvizle.app/xezer-tv-canli-izle/", "slug": "xezer-tv"}
 ]
 
 M3U_FILE = "playlist.m3u"
 
-# Tokenin yenilənməsi üçün saytı açırıq
+# Saytdan yeni tokeni əldə etmək üçün funksiyanı yazırıq
 def get_new_m3u8_link(channel_url):
     # ChromeOptions obyektini yaradın
     options = Options()
@@ -26,13 +25,18 @@ def get_new_m3u8_link(channel_url):
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(channel_url)
     
-    # Bəzi saytlarda tokeni əldə etmək üçün sayfada müəyyən bir müddət gözləmək lazım ola bilər
-    time.sleep(5)  # 5 saniyəlik gözləmə (bunu saytın yüklənmə sürətinə görə tənzimləyə bilərsiniz)
-
+    # Sayfanın tam yüklənməsini gözləyirik
+    time.sleep(5)  # Saytın yüklənməsi üçün gözləmə (bunu saytın yüklənmə sürətinə görə tənzimləyə bilərsiniz)
+    
+    # JavaScript ilə tokeni əldə edirik
     try:
-        # URL-dəki yeni tokeni əldə edirik
-        token_link = driver.current_url
-        return token_link
+        # Saytdakı canlı yayının URL-lərini alırıq
+        video_url = driver.find_element_by_xpath('//*[@id="embed_player"]/iframe').get_attribute("src")
+        if video_url:
+            return video_url
+        else:
+            print(f"❌ Xezer TV üçün link tapılmadı.")
+            return None
     except Exception as e:
         print(f"❌ Xəta: {e} | Kanal: {channel_url}")
         return None
