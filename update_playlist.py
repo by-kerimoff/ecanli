@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+from selenium.webdriver.chrome.service import Service
 
 # Kanalların linklərini daxil edirik
 channels = [
@@ -18,8 +19,9 @@ def get_new_m3u8_link(channel_url):
     options = Options()
     options.add_argument("--headless")  # Başsız modda çalışsın
 
-    # Chrome WebDriver yaradın
-    driver = webdriver.Chrome(service=webdriver.chrome.service.Service(ChromeDriverManager().install()), options=options)
+    # Chrome WebDriver yaradın (Service ilə)
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get(channel_url)
     
     # Bəzi saytlarda tokeni əldə etmək üçün sayfada müəyyən bir müddət gözləmək lazım ola bilər
