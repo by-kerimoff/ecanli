@@ -1,0 +1,89 @@
+name: Update M3U Playlist
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # Hər gün saat 12:00-da yeniləmə (cron vaxtı)
+
+jobs:
+  update-playlist:
+    runs-on: ubuntu-latest  # GitHub-un serverində Ubuntu əməliyyat sistemində işləyəcək
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2  # Depo kodunu GitHub Actions-a çəkmək
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Python-u qurmaq
+
+    - name: Install dependencies
+      run: |
+        pip install requests selenium beautifulsoup4  # Lazım olan kitabxanaların qurulması
+
+    - name: Get M3U8 links and update playlist
+      run: |
+        python - <<EOF
+        import requests
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.chrome.options import Options
+        from webdriver_manager.chrome import ChromeDriverManager
+        import time
+        import re
+
+        # Kanal URL-ləri
+        channels = [
+            {"name": "Show TV", "url": "https://www.showtv.com.tr/canli-yayin", "slug": "showtv"},
+            {"name": "CNN Türk", "url": "https://www.youtube.com/@cnnturk/live", "slug": "cnnturk"},
+            {"name": "TV8", "url": "https://www.tv8.com.tr/canli-yayin", "slug": "tv8"},
+        ]
+
+        M3U_FILE = "playlist.m3u"  # M3U playlist faylı
+
+        def get_new_m3u8_link(channel_url):
+            # Chrome parametrləri ilə Selenium-u başlatmaq
+            options = Options()
+            options.add_argument('--headless')  # Browser-in açılmaması üçün başsız rejim
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            driver.get(channel_url)
+            
+            # Saytın yüklənməsini gözləyirik
+            time.sleep(5)  # 5 saniyə gözləyirik
+            
+            # Saytdan .m3u8 linklərini tapırıq
+            m3u8_links = driver.find_elements(By.XPATH, "//*[contains(@src, '.m3u8')]")
+            if m3u8_links:
+                for link in m3u8_links:
+                    return link.get_attribute('src')
+            else:
+                print(f"❌ M3U8 link tapılmadı: {channel_url}")
+            driver.quit()  # Browser-ı bağlayırıq
+            return None
+
+        # M3U playlist faylını yeniləyirik
+        with open(M3U_FILE, "w", encoding="utf-8") as m3u:
+            m3u.write("#EXTM3U\n")
+            
+            for channel in channels:
+                new_m3u8_link = get_new_m3u8_link(channel["url"])
+                
+                if new_m3u8_link:
+                    m3u.write(f"#EXTINF:-1, {channel['name']}\n")
+                    m3u.write(f"{new_m3u8_link}\n")
+                else:
+                    print(f"❌ Kanal linki yenilənmədi: {channel['name']}")
+
+        print(f"✅ M3U playlist yeniləndi: {M3U_FILE}")
+        EOF
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add playlist.m3u
+        git commit -m "Auto-update M3U playlist"
+        git push
