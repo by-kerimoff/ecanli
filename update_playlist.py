@@ -1,20 +1,23 @@
 import requests
 import re
 
+# Kanalların URL-ləri və adları
 channels = [
-    {"name": "Xəzər TV", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=ucnbqDGzobepM_dI9V1TWA&tms=1740637357", "slug": "xazartv"},
-    # Digər kanallar burada əlavə edilə bilər
+    {
+        "name": "İctimai TV", 
+        "url": "https://str.yodacdn.net/ictimai/tracks-v1a1/mono.ts.m3u8?token=104ca719e0399569043c15302ab129afb1d7e370-264b3bed0324abbee29655f6101cf29b-1740642099-1740631299", 
+        "slug": "ictimai"
+    },
+    # Digər kanallar əlavə edilə bilər
 ]
 
 M3U_FILE = "playlist.m3u"
 
-# Token-i yeniləyən funksiya
+# Tokeni yeniləyən funksiya
 def get_new_token(link):
-    # Bu yerdə token dəyişməsinin nə şəkildə olduğunu müəyyən etmək lazımdır.
-    # Məsələn, müəyyən bir API-dən yeni token ala bilərik
-    # Amma burada nümunə olaraq sadəcə tokeni dəyişirəm.
-    new_token = "yeniTokenDəyəri"  # Burada yeni token-i təmin edin
-    new_link = re.sub(r'tkn=[^&]+', f'tkn={new_token}', link)  # Eski tokeni yenisi ilə əvəz edir
+    # Burada tokeni URL-dən çıxarıb yeniləyəcəyik
+    new_token = "yeniTokenDəyəri"  # Burada yeni token-i təyin edin
+    new_link = re.sub(r'token=[^&]+', f'token={new_token}', link)  # Eski tokeni yenisi ilə dəyişirik
     return new_link
 
 def get_new_m3u8_link(channel_url):
@@ -24,17 +27,18 @@ def get_new_m3u8_link(channel_url):
     response = requests.get(channel_url, headers=headers)
     
     if response.status_code == 200:
-        # Burada yeni M3U8 linki əldə edə bilərik
+        # Burada yeni M3U8 linki əldə edirik
         return channel_url  # Yenilənmiş link
     else:
         print(f"❌ Xəta kodu: {response.status_code} | Kanal: {channel_url}")
         return None
 
+# Yeni M3U playlistini yaradacağıq
 with open(M3U_FILE, "w", encoding="utf-8") as m3u:
     m3u.write("#EXTM3U\n")
     
     for channel in channels:
-        # Token-i dəyişirik
+        # Tokeni yeniləyirik
         updated_url = get_new_token(channel["url"])
         new_m3u8_link = get_new_m3u8_link(updated_url)
         
