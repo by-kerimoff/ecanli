@@ -1,22 +1,21 @@
 import re
-import requests
 
-# Tokeni avtomatik olaraq yeniləyən funksiya
+# URL və token dəyişdirmə funksiyası
 def get_new_token(url):
+    # URL-dəki tokeni tapmaq üçün reg-ex istifadə edirik
     token_pattern = r'token=([a-zA-Z0-9\-]+)'
     match = re.search(token_pattern, url)
     
     if match:
         token = match.group(1)
-        # Burada yeni token əldə etməliyik
-        # Bu misalda sadə olaraq tokeni statik şəkildə dəyişirik
-        new_token = "yeni_token"  # Burada yeni tokeni əlavə etməlisiniz
+        # Burada yeni tokeni təyin edirik
+        new_token = "yeni_token"  # Yeni tokeni buraya daxil edin
         new_url = url.replace(token, new_token)
         return new_url
     else:
         return None
 
-# Yeni .m3u faylını yaradacaq funksiya
+# Yeni URL və m3u faylı yaratmaq
 def create_m3u(new_url):
     with open("new_channel.m3u", "w") as f:
         f.write("#EXTM3U\n")
