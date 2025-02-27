@@ -30,8 +30,8 @@ jobs:
         import requests
         import re
         from selenium import webdriver
-        from webdriver_manager.chrome import ChromeDriverManager
         from selenium.webdriver.chrome.options import Options
+        from webdriver_manager.chrome import ChromeDriverManager
 
         channels = [
             {"name": "Show TV", "url": "https://www.showtv.com.tr/canli-yayin", "slug": "showtv"},
@@ -42,8 +42,11 @@ jobs:
         M3U_FILE = "playlist.m3u"
 
         def get_new_m3u8_link(channel_url):
+            # ChromeOptions obyektini yaradın
             options = Options()
-            options.add_argument("--headless")
+            options.add_argument("--headless")  # Başsız modda çalışsın
+
+            # Chrome WebDriver yaradın
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
             driver.get(channel_url)
             
