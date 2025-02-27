@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # Hər gün 12:00-da yeniləmə (cron vaxtı)
+    - cron: '0 0 * * *'
 
 jobs:
   update-playlist:
@@ -27,19 +27,3 @@ jobs:
     - name: Get M3U8 links and update playlist
       run: |
         python3 ecanli/update_playlist.py  # Skripti düzgün yerə görə işə salın
-
-    - name: Check for changes and commit if any
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        
-        git add playlist.m3u
-        
-        # Git diff ilə dəyişiklikləri yoxlamaq
-        git diff --cached
-        
-        # Dəyişiklik varsa commit et
-        git commit -m "Auto-update M3U playlist" || echo "No changes to commit"
-        
-        # Əgər commit olduqda push et
-        git push
