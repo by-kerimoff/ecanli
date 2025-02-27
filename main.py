@@ -8,7 +8,7 @@ def get_new_token(url):
     if match:
         token = match.group(1)
         # Burada tokeni dəyişdirmək üçün yeni token əldə etmək funksiyası olmalıdır
-        new_token = "yeni_token"
+        new_token = "yeni_token"  # Bu hissəni istədiyiniz yeni token ilə dəyişdirin
         # Tokeni dəyişdiririk
         new_url = url.replace(token, new_token)
         return new_url
