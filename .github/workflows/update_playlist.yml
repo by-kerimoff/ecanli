@@ -22,55 +22,29 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install requests selenium webdriver_manager
+        pip install requests
 
     - name: Get M3U8 links and update playlist
       run: |
         python - <<EOF
         import requests
         import re
-        from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
-        from webdriver_manager.chrome import ChromeDriverManager
-        import time
 
-        # Kanalların linklərini daxil edirik
-        channels = [
-            {"name": "Xazartv", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=9ctUTj5jLCkNmWD_OxakCg&tms=1740634051", "slug": "xazartv"}
-        ]
+        # Kanal URL-i və yeni token
+        channel_url = "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=w-2tS11TT7LOKrVVrqjN1A&tms=1740634801"
+        new_token = "w-2tS11TT7LOKrVVrqjN1A"  # Yeni token
 
+        # URL-i yeniləyirik
+        new_url = re.sub(r'tkn=[^&]+', f'tkn={new_token}', channel_url)
+
+        # M3U playlist faylına əlavə edirik
         M3U_FILE = "playlist.m3u"
 
-        # Tokenin yenilənməsi üçün saytı açırıq
-        def get_new_m3u8_link(channel_url):
-            options = Options()
-            options.add_argument("--headless")  # Başsız modda çalışsın
-
-            driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-            driver.get(channel_url)
-            
-            time.sleep(5)
-
-            try:
-                token_link = driver.current_url
-                return token_link
-            except Exception as e:
-                print(f"❌ Xəta: {e} | Kanal: {channel_url}")
-                return None
-            finally:
-                driver.quit()
-
+        # M3U faylını yazırıq
         with open(M3U_FILE, "w", encoding="utf-8") as m3u:
             m3u.write("#EXTM3U\n")
-            
-            for channel in channels:
-                new_m3u8_link = get_new_m3u8_link(channel["url"])
-                
-                if new_m3u8_link:
-                    m3u.write(f"#EXTINF:-1, {channel['name']}\n")
-                    m3u.write(f"{new_m3u8_link}\n")
-                else:
-                    print(f"❌ Kanal linki yenilənmədi: {channel['name']}")
+            m3u.write("#EXTINF:-1, Xazartv\n")  # Kanal adı əlavə edilir
+            m3u.write(f"{new_url}\n")  # Yenilənmiş URL
 
         print(f"✅ M3U playlist yeniləndi: {M3U_FILE}")
         EOF
