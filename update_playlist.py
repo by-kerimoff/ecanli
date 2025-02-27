@@ -19,7 +19,7 @@ def get_new_m3u8_link(channel_url):
     options.add_argument("--headless")  # Başsız modda çalışsın
 
     # Chrome WebDriver yaradın
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)  # Burada doğru parametrlər ilə istifadə etdik
+    driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options)  # Bu yolla düzgün parametr göndəririk
     driver.get(channel_url)
     
     # Bəzi saytlarda tokeni əldə etmək üçün sayfada müəyyən bir müddət gözləmək lazım ola bilər
