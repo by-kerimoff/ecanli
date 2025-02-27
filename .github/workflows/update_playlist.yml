@@ -1,4 +1,4 @@
-name: Python application
+name: Update Channel Token and Create M3U
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  update_channel:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests
 
-    - name: Run the script
+    - name: Run the script to update token and create m3u
       run: |
         python main.py
