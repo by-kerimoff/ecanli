@@ -26,4 +26,4 @@ jobs:
 
     - name: Get M3U8 links and update playlist
       run: |
-        python3 ecanli/update_playlist.py  # Skripti düzgün yerə görə işə salın
+        python3 ecanli/update_playlist.py
