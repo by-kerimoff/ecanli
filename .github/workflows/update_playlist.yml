@@ -1,25 +1,29 @@
-name: Auto Update Playlist
+name: Python application
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  update-m3u:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Check out repository
       uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install python3-pip
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip
+        pip install requests
 
-    - name: Run update_playlist.py script
+    - name: Run the script
       run: |
-        python ecanli/update_playlist.py  # Faylın düzgün yerini qeyd edin
+        python main.py
