@@ -5,66 +5,58 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # Hər gün saat 12:00-da yeniləmə (cron vaxtı)
+    - cron: '0 0 * * *'  # Hər gün 12:00-da yeniləmə (cron vaxtı)
 
 jobs:
   update-playlist:
-    runs-on: ubuntu-latest  # GitHub-un serverində Ubuntu əməliyyat sistemində işləyəcək
+    runs-on: ubuntu-latest
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2  # Depo kodunu GitHub Actions-a çəkmək
+      uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # Python-u qurmaq
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
-        pip install requests selenium beautifulsoup4  # Lazım olan kitabxanaların qurulması
+        pip install requests selenium webdriver_manager
 
     - name: Get M3U8 links and update playlist
       run: |
         python - <<EOF
         import requests
-        from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.chrome.options import Options
-        from webdriver_manager.chrome import ChromeDriverManager
-        import time
         import re
+        from selenium import webdriver
+        from webdriver_manager.chrome import ChromeDriverManager
+        from selenium.webdriver.chrome.options import Options
 
-        # Kanal URL-ləri
         channels = [
             {"name": "Show TV", "url": "https://www.showtv.com.tr/canli-yayin", "slug": "showtv"},
             {"name": "CNN Türk", "url": "https://www.youtube.com/@cnnturk/live", "slug": "cnnturk"},
             {"name": "TV8", "url": "https://www.tv8.com.tr/canli-yayin", "slug": "tv8"},
         ]
 
-        M3U_FILE = "playlist.m3u"  # M3U playlist faylı
+        M3U_FILE = "playlist.m3u"
 
         def get_new_m3u8_link(channel_url):
-            # Chrome parametrləri ilə Selenium-u başlatmaq
             options = Options()
-            options.add_argument('--headless')  # Browser-in açılmaması üçün başsız rejim
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            options.add_argument("--headless")
+            driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
             driver.get(channel_url)
             
-            # Saytın yüklənməsini gözləyirik
-            time.sleep(5)  # 5 saniyə gözləyirik
-            
-            # Saytdan .m3u8 linklərini tapırıq
-            m3u8_links = driver.find_elements(By.XPATH, "//*[contains(@src, '.m3u8')]")
-            if m3u8_links:
-                for link in m3u8_links:
-                    return link.get_attribute('src')
-            else:
-                print(f"❌ M3U8 link tapılmadı: {channel_url}")
-            driver.quit()  # Browser-ı bağlayırıq
-            return None
+            # Daha sonra səhifədən m3u8 linkini tapmaq
+            try:
+                m3u8_link = driver.find_element_by_xpath("//a[contains(@href, '.m3u8')]").get_attribute("href")
+                return m3u8_link
+            except Exception as e:
+                print(f"❌ Xəta: {e} | Kanal: {channel_url}")
+                return None
+            finally:
+                driver.quit()
 
-        # M3U playlist faylını yeniləyirik
         with open(M3U_FILE, "w", encoding="utf-8") as m3u:
             m3u.write("#EXTM3U\n")
             
