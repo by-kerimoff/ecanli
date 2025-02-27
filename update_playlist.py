@@ -19,8 +19,10 @@ def get_new_m3u8_link(channel_url):
     options = Options()
     options.add_argument("--headless")  # Başsız modda çalışsın
 
-    # Chrome WebDriver yaradın (Service ilə)
+    # WebDriver servisi yaradın
     service = Service(ChromeDriverManager().install())
+
+    # WebDriver obyektini yalnız `options` və `service` ilə yaradın
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(channel_url)
     
