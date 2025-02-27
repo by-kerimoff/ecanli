@@ -2,7 +2,7 @@ import requests
 import re
 
 channels = [
-    {"name": "Xəzər TV", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=ucnbqDGzobepM_dI9V1TWA&tms=1740637357", "slug": "xazartv"},
+    {"name": "Xəzər TV", "url": "https://ecanlitv3.etvserver.com/xazartv.m3u8?tkn=KIDk0i9vVdOOSNzbYp1t_A&tms=1740638106", "slug": "xazartv"},
     # Digər kanallar burada əlavə edilə bilər
 ]
 
